@@ -1,0 +1,83 @@
+const express = require('express');
+const router = express.Router();
+const { check, validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const User = require('../models/User');
+require('dotenv').config();
+
+// @route    POST api/auth/register
+// @desc     Register user
+router.post('/register', [
+  check('username', 'Username is required').not().isEmpty(),
+  check('email', 'Please include a valid email').isEmail(),
+  check('password', 'Please enter a password with 6+ characters').isLength({ min: 6 })
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+  const { username, email, password } = req.body;
+
+  try {
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(409).json({ 
+        error: 'EXISTING_USER',
+        message: 'Email already registered',
+        redirectTo: '/login'
+      });
+    }
+
+    user = await User.findOne({ username });
+    if (user) {
+      return res.status(409).json({ 
+        error: 'EXISTING_USERNAME',
+        message: 'Username already taken',
+        redirectTo: '/login'
+      });
+    }
+
+    user = new User({ username, email, password });
+    await user.save();
+
+    const payload = { user: { id: user.id } };
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5h' }, (err, token) => {
+      if (err) throw err;
+      res.json({ token, userId: user.id });
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// @route    POST api/auth/login
+// @desc     Authenticate user
+router.post('/login', [
+  check('email', 'Please include a valid email').isEmail(),
+  check('password', 'Password is required').exists()
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+  const { email, password } = req.body;
+
+  try {
+    let user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+
+    const payload = { user: { id: user.id } };
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5h' }, (err, token) => {
+      if (err) throw err;
+      res.json({ token, userId: user.id });
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+module.exports = router;

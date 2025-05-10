@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-
+    console.log(text);
     return res.status(200).json({ text });
   } catch (error) {
     console.error('Gemini API error:', error);

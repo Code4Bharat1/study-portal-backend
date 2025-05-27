@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Question = require('../models/Question');
+
 require('dotenv').config();
 
 // Function to shuffle an array (Fisher-Yates shuffle)
@@ -15,7 +16,6 @@ const shuffleArray = (array) => {
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected for seeding'))
   .catch((err) => console.error('MongoDB connection error:', err));
-
 const questions = {
   react: {
     basic: [
@@ -905,6 +905,7 @@ const questions = {
     ]
   }
 };
+
 
 const seedDB = async () => {
   try {

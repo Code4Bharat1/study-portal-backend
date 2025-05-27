@@ -1,36 +1,57 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const authRoutes = require('./routes/auth');
-const questionRoutes = require('./routes/questions');
-const geminiRoutes = require('./routes/gemini')
-require('dotenv').config();
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
+const connectDB = require('./config/db');
 
 const app = express();
 
-// Middleware
+// Connect to MongoDB
+connectDB();
 
-// Middleware
-const allowedOrigins = ['https://study-portal.code4bharat.com', 'https://www.study-portal.code4bharat.com'];
+// Middleware for security
+app.use(helmet()); // Adds secure headers
+app.use(compression()); // Gzip compression
 
+// Rate limiting - especially useful for public APIs
+const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 50, // limit each IP to 50 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+});
+app.use('/api/ask-gemini', apiLimiter);
+
+// Allowed origins for frontend
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://study-portal.code4bharat.com',
+  'https://www.study-portal.code4bharat.com'
+];
+
+// Enable CORS with options
 app.use(cors({
   origin: allowedOrigins,
-  credentials: true, // Allow cookies or authorization headers if needed
+  credentials: true
 }));
 
-app.use(express.json());
+// Body parser
+app.use(express.json({ limit: '1mb' })); // limit to prevent abuse
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/questions', questionRoutes);
-app.use('/api/ask-gemini',geminiRoutes);
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/questions', require('./routes/questions'));
+app.use('/api/ask-gemini', require('./routes/gemini'));
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// Default error handler (optional)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Internal Server Error' });
+});
 
+// Start server
 const PORT = process.env.PORT || 3902;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

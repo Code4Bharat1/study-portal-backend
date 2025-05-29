@@ -26,7 +26,7 @@ const apiLimiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 app.use('/api/ask-gemini', apiLimiter);
-
+  
 // Allowed origins for frontend
 const allowedOrigins = [
   'http://localhost:3000',

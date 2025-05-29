@@ -8,6 +8,8 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/db');
 
+
+
 const app = express();
 
 // Connect to MongoDB
@@ -28,8 +30,8 @@ app.use('/api/ask-gemini', apiLimiter);
 // Allowed origins for frontend
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://study-portal.code4bharat.com',
-  'https://www.study-portal.code4bharat.com'
+  'https://skill2future.code4bharat.com',
+  'https://www.skill2future.code4bharat.com'
 ];
 
 // Enable CORS with options
@@ -45,6 +47,7 @@ app.use(express.json({ limit: '1mb' })); // limit to prevent abuse
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/ask-gemini', require('./routes/gemini'));
+app.use('/api/submit', require('./routes/submit'))
 
 // Default error handler (optional)
 app.use((err, req, res, next) => {

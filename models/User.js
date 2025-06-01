@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  _id: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   loginCount: { type: Number, default: 0 },
   seenQuestions: [{
@@ -16,18 +16,9 @@ const userSchema = new mongoose.Schema({
     hard: { type: Number, default: 0 },
     total: { type: Number, default: 0 }
   },
-  attempts: [
-    {
-      level: String,
-      timeTaken: Number,
-      runs: Number,
-      errors: Number,
-      passedTestCases: Number,
-      totalTestCases: Number,
-      score: Number,
-      submittedAt: { type: Date, default: Date.now }
-    }
-  ]
-});
+  skillPoints: {type: Number, default: 0},
+  doneExercises: {type: Array, default: []},  // Each item in format: lang/level/seq for example: html/basic/1 
+  doneProjects: {type: Array, default: []}, // Each item in format: lang/level/seq for example: html-css-js/basic/1
+}, { _id: false });
 
 module.exports = mongoose.model('User', userSchema);

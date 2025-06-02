@@ -4,7 +4,8 @@ const User = require('../models/User');
 
 
 router.post('/', async (req, res) => {
-  const { userId, score, url } = req.body;
+  const userId = req.headers['Authorization'];
+  const { score, url } = req.body;
 
   if (!userId || !score ||!url) {
     return res.status(400).json({ message: 'Missing fields' });

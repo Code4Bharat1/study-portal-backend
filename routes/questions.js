@@ -70,6 +70,10 @@ router.get('/:quizType', auth, async (req, res) => {
       ]);
     }
 
+
+
+
+
     // Update seenQuestions
     if (!seenEntry) {
       user.seenQuestions.push({
@@ -90,3 +94,4 @@ router.get('/:quizType', auth, async (req, res) => {
 });
 
 module.exports = router;
+

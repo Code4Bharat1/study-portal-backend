@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/db');
-
+const auth  = require('./middleware/auth.js')
 
 
 const app = express();
@@ -32,7 +32,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://skill2future.code4bharat.com',
   'https://www.skill2future.code4bharat.com'
-];
+];  
 
 // Enable CORS with options
 app.use(cors({
@@ -47,14 +47,16 @@ app.use(express.json({ limit: '1mb' })); // limit to prevent abuse
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/ask-gemini', require('./routes/gemini'));
-app.use('/api/submit', require('./routes/submit'))
+app.use('/api/submit',require('./routes/sumbit.js'))
+app.use('/api/leaderboard', require('./routes/leaderboard'));
 
 // Default error handler (optional)
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Internal Server Error' });
 });
+console.info('Server time:', new Date().toISOString());
 
 // Start server
 const PORT = process.env.PORT || 3902;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.info(`🚀 Server running on port ${PORT}`));

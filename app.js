@@ -25,11 +25,13 @@ const apiLimiter = rateLimit({
   max: 50, // limit each IP to 50 requests per windowMs
   message: "Too many requests from this IP, please try again later.",
 });
-app.use('/api/ask-gemini', apiLimiter);
+app.use('/api/ask-gemini', apiLimiter);1
   
 // Allowed origins for frontend
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
+  ' http://192.168.0.121:3001',
   'https://skill2future.code4bharat.com',
   'https://www.skill2future.code4bharat.com'
 ];  
